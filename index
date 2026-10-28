@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>平行四邊形角度實驗室｜課後自主探索</title>
+<style>
+:root{--ink:#172554;--blue:#4f46e5;--blue2:#6366f1;--teal:#0f766e;--bg:#f4f7fb;--card:#fff;--muted:#64748b;--line:#dbe4f0;--gold:#f59e0b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#1e293b;font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.6}
+header{background:linear-gradient(115deg,#3730a3,#4f46e5,#2563eb);color:#fff;padding:22px 16px;text-align:center}
+header h1{margin:0;font-size:clamp(1.35rem,4vw,2rem);letter-spacing:.03em}
+header p{margin:6px auto 0;max-width:760px;color:#e0e7ff;font-size:.94rem}
+main{width:min(1080px,100%);margin:0 auto;padding:16px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 5px 20px #0f172a0a;padding:16px;min-width:0}
+.card h2{font-size:1.12rem;margin:0 0 8px;color:var(--ink)}
+.sub{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+.diagram-wrap{width:100%;background:#f8fafc;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+svg{display:block;width:100%;height:auto;min-height:240px;touch-action:manipulation}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button{font:inherit;font-weight:700;border:0;border-radius:11px;padding:11px 14px;cursor:pointer;min-height:44px;transition:transform .12s,opacity .12s}
+button:active{transform:scale(.98)}
+.primary{background:var(--blue);color:white}.secondary{background:#e0e7ff;color:#3730a3}.plain{background:#f1f5f9;color:#334155;border:1px solid var(--line)}
+button:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+button:disabled{opacity:.48;cursor:not-allowed;transform:none}
+.lock-note{font-size:.82rem;color:#64748b;margin-top:8px}
+.encourage{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 10px;color:#9a3412;font-weight:600;margin-top:8px}
+.angle-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.angle-box{background:#f8fafc;border:1px solid var(--line);border-radius:12px;text-align:center;padding:9px 4px}
+.angle-box b{display:block;font-size:.82rem;color:var(--muted)}
+.angle-box span{font-size:1.12rem;font-weight:800;color:var(--ink)}
+.angle-box.hidden span{color:#94a3b8}
+.step-list{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
+.step-pill{flex:1;min-width:75px;background:#f1f5f9;color:#475569;border:1px solid var(--line);padding:8px 5px;font-size:.84rem}
+.step-pill.active{background:#e0e7ff;color:#3730a3;border-color:#a5b4fc}
+.task{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.task .eyebrow{font-size:.76rem;font-weight:800;color:var(--teal);letter-spacing:.06em}
+.task h3{font-size:1rem;margin:4px 0 8px;color:var(--ink)}
+.task p{margin:5px 0}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.options button{background:white;border:1px solid #cbd5e1;color:#334155;text-align:left}
+.options button.selected{border-color:var(--blue);background:#eef2ff;color:#3730a3}
+.feedback{font-size:.9rem;font-weight:700;margin-top:9px;min-height:1.5em}
+.feedback.good{color:#047857}.feedback.try{color:#b45309}
+.tip{border-left:4px solid var(--gold);background:#fffbeb;border-radius:8px;padding:10px 12px;font-size:.88rem;color:#78350f;margin-top:12px}
+.progress{height:7px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:8px 0 14px}
+.progress span{display:block;height:100%;width:33%;background:linear-gradient(90deg,#6366f1,#14b8a6);transition:width .2s}
+.summary{display:none;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:12px;padding:12px;margin-top:12px}
+footer{text-align:center;padding:14px;color:#94a3b8;font-size:.8rem}
+@media(max-width:760px){main{grid-template-columns:1fr;padding:10px}.card{padding:13px}header{padding:18px 12px}.angle-grid{gap:5px}.angle-box span{font-size:1rem}.options{grid-template-columns:1fr 1fr}svg{min-height:220px}}
+@media(max-width:390px){.controls button{flex:1}.options{grid-template-columns:1fr}.angle-box{padding:8px 2px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>📐 平行四邊形角度實驗室</h1>
+  <p>課後自主探索｜先猜猜看，再按按鈕驗證，最後用自己的話整理發現。</p>
+</header>
+<main>
+  <section class="card">
+    <h2>🔎 幾何觀察區</h2>
+    <p class="sub">圖形已固定，不需要拖曳頂點。使用下方按鈕切換形狀，觀察角度如何改變。</p>
+    <div class="diagram-wrap">
+      <svg id="diagram" viewBox="0 0 520 340" role="img" aria-label="平行四邊形 ABCD，標示四個內角">
+        <defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker></defs>
+        <polygon id="poly" points="120,90 90,250 370,250 400,90" fill="#6366f1" fill-opacity=".10" stroke="#4f46e5" stroke-width="3.5" stroke-linejoin="round"/>
+        <g id="angleArcs"></g><g id="labels"></g>
+      </svg>
+    </div>
+    <div class="controls">
+      <button class="primary" id="showAngles">顯示角度數值</button>
+      <button class="secondary" id="changeShape">換一種平行四邊形</button>
+      <button class="plain" id="reset">重新開始</button>
+    </div>
+    <div class="angle-grid" id="angleGrid">
+      <div class="angle-box hidden"><b>∠A</b><span>？</span></div>
+      <div class="angle-box hidden"><b>∠B</b><span>？</span></div>
+      <div class="angle-box hidden"><b>∠C</b><span>？</span></div>
+      <div class="angle-box hidden"><b>∠D</b><span>？</span></div>
+    </div>
+    <div class="tip">操作小提醒：先不要急著看數值。可以先在心裡預測，再按「顯示角度數值」檢查自己的想法。</div>
+  </section>
+
+  <section class="card">
+    <h2>🧭 自主探索任務</h2>
+    <p class="sub">完成三個小任務，建立自己的觀察紀錄。</p>
+    <div class="progress"><span id="progressBar"></span></div>
+    <div class="step-list">
+      <button class="step-pill active" data-step="0">任務一<br>對角</button>
+      <button class="step-pill" data-step="1">任務二<br>鄰角</button>
+      <button class="step-pill" data-step="2">任務三<br>總整理</button>
+    </div>
+    <div class="task">
+      <div class="eyebrow" id="taskEyebrow">任務 1 / 3</div>
+      <h3 id="questionTitle">先預測：∠A 和 ∠C 有什麼關係？</h3>
+      <p id="questionText">∠A 與 ∠C 是一組對角。你認為它們的大小會如何？</p>
+      <div class="options" id="options">
+        <button data-answer="equal">一樣大</button>
+        <button data-answer="sum180">加起來是 180°</button>
+        <button data-answer="different">沒有固定關係</button>
+        <button data-answer="90">都一定是 90°</button>
+      </div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+      <div class="controls">
+        <button class="primary" id="checkAnswer">檢查答案</button>
+        <button class="secondary" id="nextTask" disabled>答對後前往下一個任務 →</button>
+        <div class="lock-note" id="lockNote">請先答對本題，才能解鎖下一個任務。</div>
+      </div>
+    </div>
+    <div class="task">
+      <div class="eyebrow">觀察紀錄</div>
+      <p id="recordPrompt">請先選擇答案並檢查，再用數值確認你的猜想。</p>
+      <p><strong>我觀察到：</strong><span id="recordText">尚未完成任務。</span></p>
+    </div>
+    <div class="summary" id="summary">
+      <strong>🎉 探索完成！</strong>
+      <p>平行四邊形的兩組對角分別相等；每一組鄰角互補，也就是相加為 180°。</p>
+      <p>提醒：觀察數值能幫助我們形成猜想；正式的幾何證明，還需要運用已學過的平行線截角性質等知識。</p>
+    </div>
+  </section>
+</main>
+<footer>動手玩幾何｜適用手機與電腦｜可重新開始並重複練習</footer>
+<script>
+const svgNS="http://www.w3.org/2000/svg";
+const poly=document.getElementById('poly'), arcs=document.getElementById('angleArcs'), labels=document.getElementById('labels');
+const shapes=[
+  {A:[120,90],B:[90,250],C:[370,250],D:[400,90]},
+  {A:[145,75],B:[75,245],C:[355,265],D:[425,95]},
+  {A:[130,110],B:[105,250],C:[385,230],D:[410,90]},
+  {A:[155,75],B:[100,235],C:[380,265],D:[435,105]}
+];
+let shapeIndex=0, anglesVisible=false, currentStep=0, selected=null, checked=[false,false,false], records=['','',''];
+const taskData=[
+ {title:'先預測：∠A 和 ∠C 有什麼關係？',text:'∠A 與 ∠C 是一組對角。你認為它們的大小會如何？',options:[['equal','一樣大'],['sum180','加起來是 180°'],['different','沒有固定關係'],['90','都一定是 90°']],correct:'equal',record:'平行四邊形的兩組對角分別相等。'},
+ {title:'再想想：∠A 和 ∠B 有什麼關係？',text:'∠A 與 ∠B 是一組鄰角。你認為它們的角度和是多少？',options:[['equal','一定一樣大'],['sum180','加起來是 180°'],['sum90','加起來是 90°'],['different','沒有固定關係']],correct:'sum180',record:'平行四邊形的每一組鄰角互補，和為 180°。'},
+ {title:'整理發現：哪一句話正確？',text:'請選出最完整、正確的平行四邊形角度性質。',options:[['a','四個角都相等'],['b','對角相等，鄰角互補'],['c','只有一組對角相等'],['d','鄰角一定都是 90°']],correct:'b',record:'對角相等；鄰角互補（相加為 180°）。'}
+];
+function angleAt(p1,p,p2){
+ const v1=[p1[0]-p[0],p1[1]-p[1]],v2=[p2[0]-p[0],p2[1]-p[1]];
+ const dot=v1[0]*v2[0]+v1[1]*v2[1],m1=Math.hypot(...v1),m2=Math.hypot(...v2);
+ return Math.acos(Math.max(-1,Math.min(1,dot/(m1*m2))))*180/Math.PI;
+}
+function el(tag,attrs={},text=''){const e=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));if(text)e.textContent=text;return e}
+function draw(){
+ const s=shapes[shapeIndex], order=['A','B','C','D'], points=order.map(k=>s[k]);
+ poly.setAttribute('points',points.map(p=>p.join(',')).join(' '));
+ arcs.innerHTML='';labels.innerHTML='';
+ const vals={
+  A:angleAt(s.D,s.A,s.B),B:angleAt(s.A,s.B,s.C),
+  C:angleAt(s.B,s.C,s.D),D:angleAt(s.C,s.D,s.A)
+ };
+ const colors={A:'#2563eb',B:'#0f766e',C:'#2563eb',D:'#0f766e'};
+ order.forEach(k=>{
+   const p=s[k],prev=s[({A:'D',B:'A',C:'B',D:'C'})[k]],next=s[({A:'B',B:'C',C:'D',D:'A'})[k]];
+   // 角度數值放在圖形內側，頂點字母則放在外側，避免互相遮擋
+   const cx=(s.A[0]+s.B[0]+s.C[0]+s.D[0])/4;
+   const cy=(s.A[1]+s.B[1]+s.C[1]+s.D[1])/4;
+   const vx=cx-p[0],vy=cy-p[1],len=Math.hypot(vx,vy)||1;
+   const tx=p[0]+vx/len*48,ty=p[1]+vy/len*48;
+   labels.appendChild(el('circle',{cx:p[0],cy:p[1],r:4.5,fill:colors[k]}));
+   const labelOffsets={A:[-17,-13],B:[-17,22],C:[17,22],D:[17,-13]};
+   const [lx,ly]=labelOffsets[k];
+   labels.appendChild(el('text',{x:p[0]+lx,y:p[1]+ly,'text-anchor':lx<0?'end':'start','font-size':'17','font-weight':'800',fill:'#172554'},k));
+   if(anglesVisible){
+    labels.appendChild(el('text',{x:tx,y:ty,'text-anchor':'middle','dominant-baseline':'middle','font-size':'14','font-weight':'800',fill:colors[k],stroke:'#f8fafc','stroke-width':'4','paint-order':'stroke'},Math.round(vals[k])+'°'));
+    // Small angle arc
+    const r=22, a1=Math.atan2(prev[1]-p[1],prev[0]-p[0]),a2=Math.atan2(next[1]-p[1],next[0]-p[0]);
+    let diff=a2-a1;while(diff>Math.PI)diff-=2*Math.PI;while(diff< -Math.PI)diff+=2*Math.PI;
+    const end=a1+diff, q1=[p[0]+r*Math.cos(a1),p[1]+r*Math.sin(a1)],q2=[p[0]+r*Math.cos(end),p[1]+r*Math.sin(end)];
+    arcs.appendChild(el('path',{d:`M ${q1[0]} ${q1[1]} A ${r} ${r} 0 0 ${diff>0?1:0} ${q2[0]} ${q2[1]}`,fill:'none',stroke:colors[k],'stroke-width':'2.5'}));
+   }
+ });
+ document.querySelectorAll('.angle-box').forEach((box,i)=>{
+  box.classList.toggle('hidden',!anglesVisible);
+  box.querySelector('span').textContent=anglesVisible?Math.round(vals[order[i]])+'°':'？';
+ });
+ document.getElementById('showAngles').textContent=anglesVisible?'隱藏角度數值':'顯示角度數值';
+}
+function renderTask(){
+ const t=taskData[currentStep];
+ document.getElementById('taskEyebrow').textContent=`任務 ${currentStep+1} / 3`;
+ document.getElementById('questionTitle').textContent=t.title;
+ document.getElementById('questionText').textContent=t.text;
+ const opts=document.getElementById('options');opts.innerHTML='';
+ t.options.forEach(([value,label])=>{
+  const b=document.createElement('button');b.textContent=label;b.dataset.answer=value;
+  b.disabled=checked[currentStep];
+  if(selected===value)b.classList.add('selected');
+  b.onclick=()=>{selected=value;renderTask();document.getElementById('feedback').textContent='';document.getElementById('feedback').className='feedback'};
+  opts.appendChild(b);
+ });
+ document.querySelectorAll('.step-pill').forEach((b,i)=>b.classList.toggle('active',i===currentStep));
+ document.getElementById('progressBar').style.width=((currentStep+1)/3*100)+'%';
+ const fb=document.getElementById('feedback');
+ fb.textContent=checked[currentStep]?'答對了！你已完成這個任務，可以繼續前進。':'';
+ fb.className=checked[currentStep]?'feedback good':'feedback';
+ document.getElementById('nextTask').disabled=!checked[currentStep];
+ document.getElementById('nextTask').textContent=currentStep===2?'已完成任務，重新練習 ↻':'答對後前往下一個任務 →';
+ document.getElementById('lockNote').textContent=checked[currentStep]?'任務已解鎖，做得很好！':'請先答對本題，才能解鎖下一個任務。';
+ document.getElementById('recordText').textContent=records[currentStep]||'尚未完成任務。';
+ document.getElementById('recordPrompt').textContent=currentStep===0?'提示：先比較一組對角。':currentStep===1?'提示：鄰角是相鄰的兩個內角。':'提示：把前兩個任務的發現合併成一句話。';
+ document.getElementById('summary').style.display=checked.every(Boolean)?'block':'none';
+}
+document.getElementById('showAngles').onclick=()=>{anglesVisible=!anglesVisible;draw()};
+document.getElementById('changeShape').onclick=()=>{shapeIndex=(shapeIndex+1)%shapes.length;draw()};
+document.getElementById('reset').onclick=()=>{shapeIndex=0;anglesVisible=false;currentStep=0;selected=null;checked=[false,false,false];records=['','',''];draw();renderTask()};
+document.getElementById('checkAnswer').onclick=()=>{
+ if(!selected){document.getElementById('feedback').textContent='請先選擇一個答案，再檢查。';document.getElementById('feedback').className='feedback try';return}
+ const t=taskData[currentStep],fb=document.getElementById('feedback');
+ if(selected===t.correct){
+  checked[currentStep]=true;records[currentStep]=t.record;
+  fb.textContent='答對了！很棒，你有認真觀察。現在可以顯示角度數值來驗證你的想法。';
+  fb.className='feedback good';
+  document.getElementById('nextTask').disabled=false;
+  document.getElementById('lockNote').textContent='解鎖成功！準備好就可以進入下一個任務。';
+  document.getElementById('recordText').textContent=records[currentStep];
+  document.getElementById('summary').style.display=checked.every(Boolean)?'block':'none';
+  document.querySelectorAll('#options button').forEach(b=>b.disabled=true);
+ }else{
+  const encouragement=[
+   '沒關係，探索本來就是一步一步來！想想看，對角是位在圖形的哪兩個位置，再試一次。',
+   '別急，你已經開始思考了！鄰角是相鄰的兩個角，可以顯示數值比較看看，再試一次。',
+   '差一點就完成了！回想前兩個任務的觀察：對角和鄰角的關係不一樣，再選一次看看。'
+  ][currentStep];
+  fb.textContent=encouragement;fb.className='feedback try';
+ }
+};
+document.getElementById('nextTask').onclick=()=>{
+ if(!checked[currentStep]) return;
+ currentStep=(currentStep+1)%3;selected=null;renderTask();
+};
+document.querySelectorAll('.step-pill').forEach(b=>b.onclick=()=>{currentStep=Number(b.dataset.step);selected=null;renderTask()});
+draw();renderTask();
+</script>
+</body>
+</html>
